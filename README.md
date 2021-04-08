@@ -8,7 +8,7 @@
 
 - Print help.
 
-`sudo devman -h`
+`devman -h`
 
 
 - Create a new site.
