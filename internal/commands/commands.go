@@ -74,7 +74,7 @@ func NewSite(domain string) {
 		output.Info("Document root: " + documentRoot)
 	}
 
-	var confirm = prompt.Confirm()
+	var confirm = prompt.Confirm(true)
 
 	if !confirm {
 		output.Info("Exiting.")
@@ -213,6 +213,64 @@ func NewSite(domain string) {
 	output.Info("Restarting " + webserver)
 	cmd := exec.Command("service", environment.WebServerProcessName(), "restart")
 	_ = cmd.Run()
+
+	output.Success("Finished!")
+}
+
+func RemoveSite(domain string) {
+	if user.IsSuper() != true {
+		output.Danger("You must run this command with sudo.")
+		os.Exit(0)
+	}
+
+	output.Warning("Are you sure you want to remove " + domain)
+	if prompt.Confirm(false) {
+		output.Info("Exiting.")
+		os.Exit(0)
+	}
+
+	var webserverSlug string
+	if environment.IsRunningApache() {
+		webserverSlug = "apache2"
+	} else if environment.IsRunningNginx() {
+		webserverSlug = "nginx"
+	} else {
+		output.Danger("Could not detect web server...")
+	}
+
+	output.Info("Removing hosts entry...")
+
+	if utils.FileContains("/etc/hosts", "127.0.0.1 " + domain) {
+		output.Warning("/etc/hosts does not contain entry for " + domain)
+	} else {
+		utils.RemoveFromFile("/etc/hosts", "127.0.0.1 " + domain)
+	}
+
+	output.Info("Removing site symlink...")
+
+	if utils.FileExists("/var/www/html/" + domain) {
+		utils.RemoveFile("/var/www/html/" + domain)
+	} else {
+		output.Warning("Site directory symlink wasn't found at /var/www/html/" + domain)
+	}
+
+	output.Info("Removing enabled config file...")
+
+	enabledConfig := "/etc/" + webserverSlug + "/sites-enabled/" + domain + ".conf"
+	if utils.FileExists(enabledConfig) {
+		utils.RemoveFile(enabledConfig)
+	} else {
+		output.Warning("Configuration not found at " + enabledConfig)
+	}
+
+	output.Info("Removing available config file...")
+
+	availableConfig := "/etc/" + webserverSlug + "/sites-available/" + domain + ".conf"
+	if utils.FileExists(availableConfig) {
+		utils.RemoveFile(availableConfig)
+	} else {
+		output.Warning("Configuration not found at " + availableConfig)
+	}
 
 	output.Success("Finished!")
 }

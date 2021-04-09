@@ -50,10 +50,21 @@ func PhpVersion() string {
 	return phpVersion
 }
 
-func Confirm() bool {
-	result := getPrompt("Confirm (Y/n) [Y]")
+func Confirm(defaultY bool) bool {
+	var confirmation string
+	if defaultY {
+		confirmation = "Confirm (Y/n) [Y]"
+	} else {
+		confirmation = "Confirm (Y/n) [n]"
+	}
 
-	if result == "n" || result == "N" {
+	result := getPrompt(confirmation)
+
+	if defaultY == true && result == "n" || result == "N" {
+		return false
+	}
+
+	if defaultY == false && result != "y" || result != "Y" {
 		return false
 	}
 

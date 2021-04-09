@@ -19,10 +19,15 @@ func main() {
 	flag.BoolVar(&help, "h", false, helpUsage + " short-hand")
 
 	var newSiteInput string
-	const newSiteInputUsage = "Enter the domain"
+	const newSiteInputUsage = "Enter the domain of the site to be created."
 
 	flag.StringVar(&newSiteInput, "new", "", newSiteInputUsage)
 	flag.StringVar(&newSiteInput, "n", "", newSiteInputUsage + " short-hand")
+
+	var removeSiteInput string
+	const removeSiteUsage = "Enter the domain of the site to be removed."
+	flag.StringVar(&removeSiteInput, "remove", "", removeSiteUsage)
+	flag.StringVar(&removeSiteInput, "rm", "", removeSiteUsage + " short-hand")
 
 	flag.Parse()
 
@@ -33,5 +38,9 @@ func main() {
 
 	if newSiteInput != "" {
 		commands.NewSite(newSiteInput)
+	}
+
+	if removeSiteInput != "" {
+		commands.RemoveSite(removeSiteInput)
 	}
 }

@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 )
@@ -119,6 +120,15 @@ func WriteFile(file, text string) {
 	}
 }
 
+func RemoveFile(file string) bool {
+	err := os.Remove(file)
+	if err != nil {
+		return false
+	}
+
+	return true
+}
+
 func AppendToFile(file, text string) {
 	f, err := os.OpenFile(file,
 		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
@@ -132,4 +142,14 @@ func AppendToFile(file, text string) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func RemoveFromFile(file, text string) bool {
+	cmd := exec.Command("sed", "-i", "/s/" + text + "//g", file)
+	err := cmd.Run()
+	if err != nil {
+		return false
+	}
+
+	return true
 }
