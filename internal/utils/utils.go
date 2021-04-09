@@ -2,6 +2,7 @@ package utils
 
 import (
 	"os"
+	"os/exec"
 )
 
 func GetPwd() string {
@@ -11,4 +12,13 @@ func GetPwd() string {
 	}
 
 	return pwd
+}
+
+func GetCommandOutput(command string, args ...string) string {
+	out, err := exec.Command(command, args...).Output()
+	if err != nil {
+		panic(err)
+	}
+
+	return string(out)
 }

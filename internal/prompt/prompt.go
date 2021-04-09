@@ -37,6 +37,19 @@ func DatabaseName(defaultName string) string {
 	return getPrompt("Enter database name [" + defaultName + "]")
 }
 
+func PhpVersion() string {
+	var phpVersion = ""
+	for phpVersion == "" {
+		phpVersionTmp := getPrompt("Enter PHP version")
+
+		if utils.GetCommandOutput("bash", "-c", "command -v php-fpm" + phpVersionTmp) != "" {
+			phpVersion = phpVersionTmp
+		}
+	}
+
+	return phpVersion
+}
+
 func Confirm() bool {
 	result := getPrompt("Confirm (Y/n) [Y]")
 

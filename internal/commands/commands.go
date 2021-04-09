@@ -62,6 +62,11 @@ func NewSite(domain string) {
 		dbName = strings.Replace(domain, ".", "_", 1)
 	}
 
+	var phpVersion string
+	if environment.IsRunningNginx() {
+		phpVersion = prompt.PhpVersion()
+	}
+
 	output.Info("Site URL: " + domain)
 	output.Info("Site path: " + sitePath)
 
@@ -178,8 +183,8 @@ func NewSite(domain string) {
 		var config string
 		if environment.IsRunningApache() {
 			config = template.ApacheConfig(domain, documentRoot)
-		} else {
-			config = template.NginxConfig(domain, documentRoot, "7.4")
+		} else if environment.IsRunningNginx() {
+			config = template.NginxConfig(domain, documentRoot, phpVersion)
 		}
 
 		utils.WriteFile(configLocation, config)
