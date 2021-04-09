@@ -18,6 +18,11 @@ func main() {
 	flag.BoolVar(&help, "help", false, helpUsage)
 	flag.BoolVar(&help, "h", false, helpUsage + " short-hand")
 
+	var versionInput bool
+	const versionUsage = "Show the version."
+	flag.BoolVar(&versionInput, "version", false, versionUsage)
+	flag.BoolVar(&versionInput, "v", false, versionUsage)
+
 	var newSiteInput string
 	const newSiteInputUsage = "Enter the domain of the site to be created."
 
