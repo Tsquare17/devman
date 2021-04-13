@@ -1,7 +1,7 @@
 package prompt
 
 import (
-	"devman/internal/utils"
+	"github.com/tsquare17/devman/internal/utils"
 	"github.com/manifoldco/promptui"
 )
 

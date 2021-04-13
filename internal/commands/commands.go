@@ -1,13 +1,13 @@
 package commands
 
 import (
-	"devman/internal/database"
-	"devman/internal/environment"
-	"devman/internal/output"
-	"devman/internal/prompt"
-	"devman/internal/template"
-	"devman/internal/user"
-	"devman/internal/utils"
+	"github.com/tsquare17/devman/internal/database"
+	"github.com/tsquare17/devman/internal/environment"
+	"github.com/tsquare17/devman/internal/output"
+	"github.com/tsquare17/devman/internal/prompt"
+	"github.com/tsquare17/devman/internal/template"
+	"github.com/tsquare17/devman/internal/user"
+	"github.com/tsquare17/devman/internal/utils"
 	"io/ioutil"
 	"os"
 	"os/exec"

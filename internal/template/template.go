@@ -1,7 +1,7 @@
 package template
 
 import (
-	"devman/internal/user"
+	"github.com/tsquare17/devman/internal/user"
 	"fmt"
 	"io/ioutil"
 )

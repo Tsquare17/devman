@@ -1,8 +1,8 @@
 package main
 
 import (
-	"devman/internal/commands"
-	"devman/internal/output"
+	"github.com/tsquare17/devman/internal/commands"
+	"github.com/tsquare17/devman/internal/output"
 	"flag"
 	"os"
 )
