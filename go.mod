@@ -1,4 +1,4 @@
-module devman
+module github.com/tsquare17/devman
 
 go 1.16
 
