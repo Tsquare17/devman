@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/tsquare17/devman/internal/commands"
 	"github.com/tsquare17/devman/internal/output"
+	"github.com/tsquare17/devman/internal/setup"
 	"flag"
 	"os"
 )
@@ -11,6 +12,8 @@ const version = "0.1.0"
 
 func main() {
 	output.Info("DevMan " + version)
+
+	setup.Init()
 
 	var help bool
 	const helpUsage = "Print this help message."

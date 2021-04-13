@@ -20,7 +20,7 @@ func SiteDocumentRoot() string {
 }
 
 func MySQLPasswordPrompt() string {
-	return getPrompt("Enter root MySQL password (if creating database)")
+	return getPrompt("Enter root MySQL password (if creating mysql)")
 }
 
 func IsInstallWordPress() bool {
@@ -34,7 +34,7 @@ func IsInstallWordPress() bool {
 }
 
 func DatabaseName(defaultName string) string {
-	return getPrompt("Enter database name [" + defaultName + "]")
+	return getPrompt("Enter mysql name [" + defaultName + "]")
 }
 
 func PhpVersion() string {

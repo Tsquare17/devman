@@ -1,7 +1,7 @@
 package commands
 
 import (
-	"github.com/tsquare17/devman/internal/database"
+	"github.com/tsquare17/devman/internal/database/mysql"
 	"github.com/tsquare17/devman/internal/environment"
 	"github.com/tsquare17/devman/internal/output"
 	"github.com/tsquare17/devman/internal/prompt"
@@ -98,8 +98,8 @@ func NewSite(domain string) {
 
 	var createdDb = false
 	if dbName != "" && dbPass != "" {
-		output.Info("Creating database...")
-		createdDb = database.CreateDatabase(dbName, dbPass)
+		output.Info("Creating mysql...")
+		createdDb = mysql.CreateDatabase(dbName, dbPass)
 
 		if !createdDb {
 			output.Danger("Database creation failed. Does it already exist?")
@@ -119,7 +119,7 @@ func NewSite(domain string) {
 		if err != nil {
 			if createdDb {
 				output.Danger("Failed to download WordPress archive. Rolling back...")
-				database.DeleteDatabase(dbName, dbPass)
+				mysql.DeleteDatabase(dbName, dbPass)
 			} else {
 				output.Danger("Failed to download WordPress archive. Exiting.")
 			}
