@@ -41,7 +41,7 @@ func Init() {
 }
 
 func createTables() {
-	const query = "CREATE TABLE `sites` (id INTEGER PRIMARY KEY, domain VARCHAR(255), path VARCHAR(255))"
+	const query = "CREATE TABLE `sites` (id INTEGER PRIMARY KEY, domain VARCHAR(255), path VARCHAR(255), created_at DATETIME DEFAULT CURRENT_TIMESTAMP, updated_at DATETIME DEFAULT CURRENT_TIMESTAMP)"
 	success := sqlite.Statement(query)
 
 	if success {
