@@ -1,10 +1,10 @@
 package main
 
 import (
+	"flag"
 	"github.com/tsquare17/devman/internal/commands"
 	"github.com/tsquare17/devman/internal/output"
 	"github.com/tsquare17/devman/internal/setup"
-	"flag"
 	"os"
 )
 
@@ -37,6 +37,10 @@ func main() {
 	flag.StringVar(&removeSiteInput, "remove", "", removeSiteUsage)
 	flag.StringVar(&removeSiteInput, "rm", "", removeSiteUsage + " short-hand")
 
+	var gitHooksInput string
+	var gitHooksUsage = "Command"
+	flag.StringVar(&gitHooksInput, "git", "", gitHooksUsage)
+
 	flag.Parse()
 
 	if help == true {
@@ -44,11 +48,25 @@ func main() {
 		os.Exit(0)
 	}
 
+	executed := false
 	if newSiteInput != "" {
 		commands.NewSite(newSiteInput)
+		executed = true
 	}
 
 	if removeSiteInput != "" {
 		commands.RemoveSite(removeSiteInput)
+		executed = true
+	}
+
+	if gitHooksInput != "" {
+		if gitHooksInput == "gitdeny" {
+			commands.AddGitDenyTag()
+			executed = true
+		}
+	}
+
+	if executed == false {
+		flag.Usage()
 	}
 }

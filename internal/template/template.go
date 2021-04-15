@@ -1,8 +1,8 @@
 package template
 
 import (
-	"github.com/tsquare17/devman/internal/user"
 	"fmt"
+	"github.com/tsquare17/devman/internal/user"
 	"io/ioutil"
 )
 
@@ -140,4 +140,16 @@ func NginxConfig(domain, docRoot, phpVersion string) string {
 		}
 	}
 `, docRoot, domain, phpVersion)
+}
+
+func gitDenyTag() string {
+	return `
+#!/bin/sh
+
+forbidden='@gitdeny'
+git diff --cached --name-only | xargs grep --with-filename -n $forbidden && echo "COMMIT REJECTED! Found '$i' references. Please remove them before committing." && exit 1
+
+exit 0
+
+`
 }

@@ -148,8 +148,8 @@ func NewSite(domain string) {
 		cmd := exec.Command("/bin/sh", "-c", "mv " + sitePath + "/wordpress/* " + sitePath + "/")
 		_ = cmd.Run()
 		_ = os.RemoveAll(sitePath + "/wordpress")
-		_ = ioutil.WriteFile(sitePath+"/.htaccess", []byte(htaccess), 0644)
-		_ = os.Chown(sitePath+"/.htaccess", uid, gid)
+		_ = ioutil.WriteFile(sitePath + "/.htaccess", []byte(htaccess), 0644)
+		_ = os.Chown(sitePath + "/.htaccess", uid, gid)
 
 		if dbName != "" {
 			cmd = exec.Command("/bin/sh", "-c", "sed -i \"s/database_name_here/" + dbName + "/g\" " + sitePath + "/wp-config-sample.php")
@@ -273,4 +273,8 @@ func RemoveSite(domain string) {
 	}
 
 	output.Success("Finished!")
+}
+
+func AddGitDenyTag() {
+
 }

@@ -1,8 +1,8 @@
 package prompt
 
 import (
-	"github.com/tsquare17/devman/internal/utils"
 	"github.com/manifoldco/promptui"
+	"github.com/tsquare17/devman/internal/utils"
 )
 
 func SitePath() string {
