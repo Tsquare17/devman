@@ -207,11 +207,12 @@ func NewSite(domain string) {
 			cmd := exec.Command("ln", "-s", configLocation, "/etc/" + webserverSlug + "/sites-enabled/")
 			_ = cmd.Run()
 		} else {
-			utils.AppendFile(configLocation, config)
+			if !utils.FileContains(configLocation, domain) {
+				utils.AppendFile(configLocation, config)
 
-			output.Info("Added " + domain + " to Caddfile")
+				output.Info("Added " + domain + " to Caddyfile")
+			}
 		}
-
 	}
 
 	if utils.FileExists("/var/www/html/" + domain) {

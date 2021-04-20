@@ -1,8 +1,8 @@
 package prompt
 
 import (
-	"github.com/tsquare17/devman/internal/utils"
 	"github.com/manifoldco/promptui"
+	"github.com/tsquare17/devman/internal/utils"
 )
 
 func SitePath() string {
@@ -60,15 +60,15 @@ func Confirm(defaultY bool) bool {
 
 	result := getPrompt(confirmation)
 
-	if defaultY == true && result == "n" || result == "N" {
-		return false
+	if defaultY == true && result != "n" || result != "N" {
+		return true
 	}
 
 	if defaultY == false && result != "y" || result != "Y" {
-		return false
+		return true
 	}
 
-	return true
+	return false
 }
 
 func getPrompt(message string) string {
