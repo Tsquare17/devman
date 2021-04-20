@@ -120,6 +120,20 @@ func WriteFile(file, text string) {
 	}
 }
 
+func AppendFile(file, text string) {
+	f, err := os.OpenFile(file, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	defer f.Close()
+
+	if _, err := f.WriteString(text); err != nil {
+		log.Println(err)
+	}
+}
+
 func RemoveFile(file string) bool {
 	err := os.Remove(file)
 	if err != nil {

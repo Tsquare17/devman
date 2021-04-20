@@ -1,8 +1,8 @@
 package template
 
 import (
-	"github.com/tsquare17/devman/internal/user"
 	"fmt"
+	"github.com/tsquare17/devman/internal/user"
 	"io/ioutil"
 )
 
@@ -140,4 +140,20 @@ func NginxConfig(domain, docRoot, phpVersion string) string {
 		}
 	}
 `, docRoot, domain, phpVersion)
+}
+
+func CaddyConfig(domain, docRoot, phpVersion string) string {
+	return fmt.Sprintf(`
+
+%s {
+	root * /var/www/html/%s
+
+	php_fastcgi unix//run/php/php%s-fpm.sock
+
+	encode gzip
+
+	file_server
+}
+
+`, domain, docRoot, phpVersion)
 }

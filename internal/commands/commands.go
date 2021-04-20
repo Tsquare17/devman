@@ -28,6 +28,9 @@ func NewSite(domain string) {
 	} else if environment.IsRunningNginx() {
 		webserver = "Nginx"
 		webserverSlug = "nginx"
+	} else if environment.IsRunningCaddy() {
+		webserver = "Caddy"
+		webserverSlug = "caddy"
 	} else {
 		output.Danger("Could not detect web server...")
 		os.Exit(0)
@@ -47,9 +50,11 @@ func NewSite(domain string) {
 	if !isInstallWordPress {
 		documentRoot = prompt.SiteDocumentRoot()
 
-		lastChar := documentRoot[len(documentRoot) -1:]
-		if lastChar == "/" {
-			documentRoot = documentRoot[:len(documentRoot) - 1]
+		if documentRoot != "" {
+			lastChar := documentRoot[len(documentRoot) -1:]
+			if lastChar == "/" {
+				documentRoot = documentRoot[:len(documentRoot) - 1]
+			}
 		}
 	}
 
@@ -63,7 +68,7 @@ func NewSite(domain string) {
 	}
 
 	var phpVersion string
-	if environment.IsRunningNginx() {
+	if environment.IsRunningNginx() || environment.IsRunningCaddy() {
 		phpVersion = prompt.PhpVersion()
 	}
 
@@ -170,13 +175,19 @@ func NewSite(domain string) {
 	}
 
 	enabledConfigLocation := "/etc/" + webserverSlug + "/sites-enabled/" + domain + ".conf"
-	configLocation := "/etc/" + webserverSlug + "/sites-available/" + domain + ".conf"
 
-	// Setup Nginx/Apache config.
+	var configLocation string
+	if environment.IsRunningCaddy() {
+		configLocation = "/etc/caddy/Caddyfile"
+	} else {
+		configLocation = "/etc/" + webserverSlug + "/sites-available/" + domain + ".conf"
+	}
+
+	// Setup web server config.
 
 	output.Info("Configuring " + webserver + "...")
 
-	if utils.FileExists(enabledConfigLocation) {
+	if utils.FileExists(enabledConfigLocation) && !environment.IsRunningCaddy() {
 		output.Warning(enabledConfigLocation + " already exists.")
 	} else {
 		output.Info("Creating configuration...")
@@ -185,13 +196,22 @@ func NewSite(domain string) {
 			config = template.ApacheConfig(domain, documentRoot)
 		} else if environment.IsRunningNginx() {
 			config = template.NginxConfig(domain, documentRoot, phpVersion)
+		} else if environment.IsRunningCaddy() {
+			config = template.CaddyConfig(domain, documentRoot, phpVersion)
 		}
 
-		utils.WriteFile(configLocation, config)
+		if !environment.IsRunningCaddy() {
+			utils.WriteFile(configLocation, config)
 
-		output.Info("Creating symbolic link " + configLocation + " /etc/" + webserverSlug + "/sites-enabled/")
-		cmd := exec.Command("ln", "-s", configLocation, "/etc/" + webserverSlug + "/sites-enabled/")
-		_ = cmd.Run()
+			output.Info("Creating symbolic link " + configLocation + " /etc/" + webserverSlug + "/sites-enabled/")
+			cmd := exec.Command("ln", "-s", configLocation, "/etc/" + webserverSlug + "/sites-enabled/")
+			_ = cmd.Run()
+		} else {
+			utils.AppendFile(configLocation, config)
+
+			output.Info("Added " + domain + " to Caddfile")
+		}
+
 	}
 
 	if utils.FileExists("/var/www/html/" + domain) {
