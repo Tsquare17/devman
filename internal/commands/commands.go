@@ -143,12 +143,6 @@ func NewSite(domain string) {
 			output.Danger("Failed to unpack archive...")
 		}
 
-		output.Info("Setting permissions...")
-		err = utils.ChownR(sitePath, uid, gid)
-		if err != nil {
-			panic(err)
-		}
-
 		output.Info("Moving files... ")
 		cmd := exec.Command("/bin/sh", "-c", "mv " + sitePath + "/wordpress/* " + sitePath + "/")
 		_ = cmd.Run()
@@ -172,6 +166,12 @@ func NewSite(domain string) {
 		if dbName != "" || dbPass != "" {
 			_ = os.Rename(sitePath+"/wp-config-sample.php", sitePath+"/wp-config.php")
 		}
+	}
+
+	output.Info("Setting permissions...")
+	err := utils.ChownR(sitePath, uid, gid)
+	if err != nil {
+		panic(err)
 	}
 
 	enabledConfigLocation := "/etc/" + webserverSlug + "/sites-enabled/" + domain + ".conf"
@@ -220,7 +220,10 @@ func NewSite(domain string) {
 	} else {
 		output.Info("Creating symbolic link " + sitePath + "/ /var/www/html/" + domain)
 		cmd := exec.Command("ln", "-s", sitePath + "/", "/var/www/html/" + domain)
-		_ = cmd.Run()
+		err = cmd.Run()
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	output.Info("Mapping DNS...")
@@ -228,12 +231,15 @@ func NewSite(domain string) {
 	if utils.FileContains("/etc/hosts", "127.0.0.1 " + domain) {
 		output.Warning("Entry already exists in /etc/hosts")
 	} else {
-		utils.AppendToFile("/etc/hosts", "127.0.0.1 " + domain)
+		utils.AppendToFile("/etc/hosts", "\n127.0.0.1 " + domain)
 	}
 
 	output.Info("Restarting " + webserver)
 	cmd := exec.Command("service", environment.WebServerProcessName(), "restart")
-	_ = cmd.Run()
+	err = cmd.Run()
+	if err != nil {
+		panic(err)
+	}
 
 	output.Success("Finished!")
 }
