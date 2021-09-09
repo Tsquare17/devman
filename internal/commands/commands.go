@@ -11,7 +11,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
-	"strings"
+	"strconv"
 )
 
 func NewSite(domain string) {
@@ -62,15 +62,13 @@ func NewSite(domain string) {
 
 	var dbName = ""
 	if isInstallWordPress && dbPass == "" {
-		dbName = prompt.DatabaseName(strings.Replace(domain, ".", "_", 1))
+		dbName = prompt.DatabaseName(utils.Slugify(domain))
 	} else if dbPass != "" {
-		dbName = strings.Replace(domain, ".", "_", 1)
+		dbName = utils.Slugify(domain)
 	}
 
 	var phpVersion string
-	if environment.IsRunningNginx() || environment.IsRunningCaddy() {
-		phpVersion = prompt.PhpVersion()
-	}
+	phpVersion = prompt.PhpVersion()
 
 	output.Info("Site URL: " + domain)
 	output.Info("Site path: " + sitePath)
@@ -103,17 +101,18 @@ func NewSite(domain string) {
 
 	var createdDb = false
 	if dbName != "" && dbPass != "" {
-		output.Info("Creating database...")
+		output.Info("Creating database: " + dbName)
 		createdDb = database.CreateDatabase(dbName, dbPass)
 
 		if !createdDb {
 			output.Danger("Database creation failed. Does it already exist?")
 		} else {
-			output.Info("Database " + dbName + " created.")
+			output.Info("Database created")
 		}
 	}
 
 	if isInstallWordPress {
+		// TODO: Check for user defined templates in the template method itself.
 		htaccess := template.GetTemplate("wp-htaccess")
 		if htaccess == "" {
 			htaccess = template.WpHtaccess()
@@ -147,8 +146,12 @@ func NewSite(domain string) {
 		cmd := exec.Command("/bin/sh", "-c", "mv " + sitePath + "/wordpress/* " + sitePath + "/")
 		_ = cmd.Run()
 		_ = os.RemoveAll(sitePath + "/wordpress")
-		_ = ioutil.WriteFile(sitePath+"/.htaccess", []byte(htaccess), 0644)
-		_ = os.Chown(sitePath+"/.htaccess", uid, gid)
+		_ = ioutil.WriteFile(sitePath+"/.htaccess", []byte(htaccess), 0664)
+		// TODO: Figure out why permissions aren't getting set..
+		err = os.Chown(sitePath+"/.htaccess", uid, gid)
+		if err != nil {
+			panic(err)
+		}
 
 		if dbName != "" {
 			cmd = exec.Command("/bin/sh", "-c", "sed -i \"s/database_name_here/" + dbName + "/g\" " + sitePath + "/wp-config-sample.php")
@@ -168,7 +171,8 @@ func NewSite(domain string) {
 		}
 	}
 
-	output.Info("Setting permissions...")
+	output.Info("Setting permissions on: " + sitePath)
+	output.Info("UID: " + strconv.Itoa(uid) + " GID: " + strconv.Itoa(gid))
 	err := utils.ChownR(sitePath, uid, gid)
 	if err != nil {
 		panic(err)
@@ -193,7 +197,7 @@ func NewSite(domain string) {
 		output.Info("Creating configuration...")
 		var config string
 		if environment.IsRunningApache() {
-			config = template.ApacheConfig(domain, documentRoot)
+			config = template.ApacheConfig(domain, documentRoot, phpVersion)
 		} else if environment.IsRunningNginx() {
 			config = template.NginxConfig(domain, documentRoot, phpVersion)
 		} else if environment.IsRunningCaddy() {
@@ -220,7 +224,7 @@ func NewSite(domain string) {
 	} else {
 		output.Info("Creating symbolic link " + sitePath + "/ /var/www/html/" + domain)
 		cmd := exec.Command("ln", "-s", sitePath + "/", "/var/www/html/" + domain)
-		err = cmd.Run()
+		err := cmd.Run()
 		if err != nil {
 			panic(err)
 		}

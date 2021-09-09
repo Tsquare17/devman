@@ -34,7 +34,22 @@ RewriteRule . /index.php [L]
 `
 }
 
-func ApacheConfig(domain, docRoot string) string {
+func ApacheConfig(domain, docRoot, phpVersion string) string {
+	var fpmConfig string
+
+	if phpVersion != "" {
+		fpmConfig = fmt.Sprintf(`
+
+	<FilesMatch \.php$>
+		 SetHandler "proxy:unix:/run/php/php%s-fpm.sock|fcgi://localhost"
+	</FilesMatch>
+
+`, phpVersion)
+	} else {
+		fpmConfig = ""
+	}
+
+
 	return fmt.Sprintf(`
     <VirtualHost *:80>
         ServerName %s
@@ -45,8 +60,7 @@ func ApacheConfig(domain, docRoot string) string {
         <Directory /var/www/html/%s/>
         Options FollowSymLinks
         AllowOverride All
-        Order allow,deny
-        allow from all
+        Require all granted
         </Directory>
 
 		# Available loglevels: trace8, ..., trace1, debug, info, notice, warn,
@@ -54,7 +68,7 @@ func ApacheConfig(domain, docRoot string) string {
         # It is also possible to configure the loglevel for particular
         # modules, e.g.
         #LogLevel info ssl:warn
-
+%s
         ErrorLog ${APACHE_LOG_DIR}/error.log
         CustomLog ${APACHE_LOG_DIR}/access.log combined
 
@@ -81,13 +95,12 @@ func ApacheConfig(domain, docRoot string) string {
         </FilesMatch>
 
 		<Directory /var/www/html/%s/>
-        Options FollowSymLinks
-        AllowOverride All
-        Order allow,deny
-        allow from all
-                   SSLOptions +StdEnvVars
+			Options FollowSymLinks
+			AllowOverride All
+			Require all granted
+			SSLOptions +StdEnvVars
         </Directory>
-
+%s
 		BrowserMatch \"MSIE [2-6]\" \
                    nokeepalive ssl-unclean-shutdown \
                    downgrade-1.0 force-response-1.0
@@ -98,7 +111,7 @@ func ApacheConfig(domain, docRoot string) string {
                 Deny from all
         </DirectoryMatch>
     </VirtualHost>
-`, domain, docRoot, domain, domain, docRoot, domain)
+`, domain, docRoot, domain, fpmConfig, domain, docRoot, domain, fpmConfig)
 }
 
 func NginxConfig(domain, docRoot, phpVersion string) string {

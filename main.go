@@ -1,13 +1,13 @@
 package main
 
 import (
+	"flag"
 	"github.com/tsquare17/devman/internal/commands"
 	"github.com/tsquare17/devman/internal/output"
-	"flag"
 	"os"
 )
 
-const version = "0.1.0"
+const version = "0.2.0"
 
 func main() {
 	output.Info("DevMan " + version)

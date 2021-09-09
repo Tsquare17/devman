@@ -1,8 +1,10 @@
 package utils
 
 import (
+	"log"
 	"os"
 	"os/exec"
+	"regexp"
 )
 
 func GetPwd() string {
@@ -21,4 +23,13 @@ func GetCommandOutput(command string, args ...string) string {
 	}
 
 	return string(out)
+}
+
+func Slugify(title string) string {
+	reg, err := regexp.Compile("[^A-Za-z0-9]+")
+	if err != nil {
+		log.Panic(err)
+	}
+
+	return reg.ReplaceAllString(title, "_")
 }
