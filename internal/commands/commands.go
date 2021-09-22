@@ -11,7 +11,6 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
-	"strconv"
 )
 
 func NewSite(domain string) {
@@ -147,10 +146,10 @@ func NewSite(domain string) {
 		_ = cmd.Run()
 		_ = os.RemoveAll(sitePath + "/wordpress")
 		_ = ioutil.WriteFile(sitePath+"/.htaccess", []byte(htaccess), 0664)
-		// TODO: Figure out why permissions aren't getting set..
+
 		err = os.Chown(sitePath+"/.htaccess", uid, gid)
 		if err != nil {
-			panic(err)
+			output.Warning(err.Error())
 		}
 
 		if dbName != "" {
@@ -172,10 +171,9 @@ func NewSite(domain string) {
 	}
 
 	output.Info("Setting permissions on: " + sitePath)
-	output.Info("UID: " + strconv.Itoa(uid) + " GID: " + strconv.Itoa(gid))
 	err := utils.ChownR(sitePath, uid, gid)
 	if err != nil {
-		panic(err)
+		output.Warning(err.Error())
 	}
 
 	enabledConfigLocation := "/etc/" + webserverSlug + "/sites-enabled/" + domain + ".conf"
