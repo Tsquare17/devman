@@ -253,10 +253,14 @@ func RemoveSite(domain string) {
 	}
 
 	output.Warning("Are you sure you want to remove " + domain)
-	if prompt.Confirm(false) {
+
+	var confirm = prompt.Confirm(true)
+
+	if !confirm {
 		output.Info("Exiting.")
 		os.Exit(0)
 	}
+
 
 	var webserverSlug string
 	if environment.IsRunningApache() {
